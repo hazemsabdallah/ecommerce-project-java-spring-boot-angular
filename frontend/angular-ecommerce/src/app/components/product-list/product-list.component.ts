@@ -31,7 +31,7 @@ export class ProductListComponent implements OnInit {
     if(hasCategoryId) {
       this.currentCategoryId = +this.activatedRoute.snapshot.paramMap.get('id')!;
     }
-    this.productService.getProcutList(this.currentCategoryId).subscribe(
+    this.productService.getProductList(this.currentCategoryId).subscribe(
       data => {
         this.products = data;
       }
