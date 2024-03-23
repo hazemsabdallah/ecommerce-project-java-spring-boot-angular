@@ -1,4 +1,6 @@
+import { provideCloudflareLoader } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Product } from 'src/app/common/product';
 import { ProductService } from 'src/app/services/product.service';
 
@@ -13,14 +15,23 @@ export class ProductListComponent implements OnInit {
 
   public products: Product[]= [];
 
-  constructor(private productService: ProductService) { }
+  currentCategoryId: number = 1;
+
+  constructor(private productService: ProductService,
+              private activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
-    this.listproducts();
+    this.activatedRoute.paramMap.subscribe(() => {
+      this.listproducts();
+    });
   }
 
   listproducts(): void {
-    this.productService.getProcutList().subscribe(
+    const hasCategoryId: boolean = this.activatedRoute.snapshot.paramMap.has('id');
+    if(hasCategoryId) {
+      this.currentCategoryId = +this.activatedRoute.snapshot.paramMap.get('id')!;
+    }
+    this.productService.getProcutList(this.currentCategoryId).subscribe(
       data => {
         this.products = data;
       }
