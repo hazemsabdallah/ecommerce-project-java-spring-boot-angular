@@ -1,7 +1,8 @@
-import { provideCloudflareLoader } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { CartItem } from 'src/app/common/cart-item';
 import { Product } from 'src/app/common/product';
+import { CartService } from 'src/app/services/cart.service';
 import { ProductService } from 'src/app/services/product.service';
 
 @Component({
@@ -30,6 +31,7 @@ export class ProductListComponent implements OnInit {
   previousKeyword: string = "";
 
   constructor(private productService: ProductService,
+              private cartService: CartService,
               private activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
@@ -81,7 +83,7 @@ export class ProductListComponent implements OnInit {
                        .subscribe(this.processResult());
   }
 
-  updatePageSize(value: string): void {
+  updatePageSize(value: string) {
     this.pageSize = +value;
     this.pageNumber = 1;
     this.listproducts();
@@ -94,5 +96,10 @@ export class ProductListComponent implements OnInit {
       this.pageSize = data.page.size;
       this.totalElements = data.page.totalElements;
     };
-  } 
+  }
+
+  addToCart(product: Product) {
+    const cartItem = new CartItem(product);
+    this.cartService.addToCart(cartItem);
+  }
 }
