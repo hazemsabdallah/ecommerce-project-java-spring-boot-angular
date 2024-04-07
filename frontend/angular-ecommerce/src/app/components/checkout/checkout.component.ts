@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormService } from 'src/app/services/form.service';
 
 @Component({
   selector: 'app-checkout',
@@ -13,7 +14,11 @@ export class CheckoutComponent implements OnInit {
 
   checkoutFormGroup!: FormGroup;
 
-  constructor(private formBuilder: FormBuilder) { }
+  creditCardYears: number[] = [];
+  creditCardMonths: number[] = [];
+
+  constructor(private formBuilder: FormBuilder,
+              private formService: FormService) { }
 
   ngOnInit(): void {
     this.checkoutFormGroup = this.formBuilder.group({
@@ -45,6 +50,22 @@ export class CheckoutComponent implements OnInit {
         expirationYear: ['']
       })
     });
+
+    //populate credit card date drop down
+    const startMonth: number = new Date().getMonth() + 1;
+
+    this.formService.getCreditCardMonths(startMonth).subscribe(
+      data => {
+        this.creditCardMonths = data;
+      }
+    );
+
+    this.formService.getCreditCardYears().subscribe(
+      data => {
+        this.creditCardYears = data;
+      }
+    );
+
   }
 
   onSubmit(): void {
@@ -56,9 +77,29 @@ export class CheckoutComponent implements OnInit {
     if (isChecked) {
       this.checkoutFormGroup.controls['billingAddress']
         .setValue(this.checkoutFormGroup.controls['shippingAddress'].value);
-      }
-      else {
-        this.checkoutFormGroup.controls['billingAddress'].reset();
-      }
     }
+    else {
+      this.checkoutFormGroup.controls['billingAddress'].reset();
+    }
+  }
+
+  handleMonthsAndYears(): void {
+    const creditCardGroup = this.checkoutFormGroup.get('creditCard');
+    const selectedYear: number = Number(creditCardGroup?.value.expirationYear);
+    const currentYear: number = new Date().getFullYear();
+
+    let startMonth: number
+    if (currentYear == selectedYear) {
+      startMonth = new Date().getMonth() + 1;
+    }
+    else {
+      startMonth = 1;
+    }
+
+    this.formService.getCreditCardMonths(startMonth).subscribe(
+      data => {
+        this.creditCardMonths = data;
+      }
+    );
+  }
 }
